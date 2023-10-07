@@ -35,6 +35,7 @@
       get_url:
         url: https://prdownloads.sourceforge.net/projects/nagios/files/nagios-4.x/nagios-4.0.7/nagios-4.0.7.tar.gz
         dest: ~/nagios/nagios-4.0.7.tar.gz
+        mode: 0644
 
     - name: Download Nagios Plugins source
       get_url:
