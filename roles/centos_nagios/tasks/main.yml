@@ -75,7 +75,7 @@
 
 - name: Nagios Start/Enable Check
   service:
-    name: nagios
+    name: nagios.service
     state: started
     enabled: true
 
