@@ -1,0 +1,6 @@
+#this is the playbook for installing nagios
+#on the remote servers
+
+---
+
+- hosts: all
