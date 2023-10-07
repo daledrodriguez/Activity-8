@@ -29,13 +29,7 @@
       file:
         path: ~/nagios
         state: directory
-
-    - name: Download Nagios Core
-      get_url:
-        url: https://sourceforge.net/projects/nagios/files/nagios-4.x/nagios-4.0.7/nagios-4.0.7.tar.gz/download?use_mirror=master
-        dest: ~/nagios/nagios-core.tar.gz
-        mode: 0644
-
+        
     - name: Download Nagios Plugins
       get_url:
         url: http://www.nagios-plugins.org/download/nagios-plugins-2.0.3.tar.gz
