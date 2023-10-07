@@ -62,23 +62,28 @@
         state: directory
 
     - name: Download Nagios
-      get_url:
-        url: https://github.com/NagiosEnterprises/nagioscore/archive/nagios-4.4.6.tar.gz
-        dest: ~/nagios
-        mode: 0644
-
-    - name: Extract Nagios
       unarchive:
-        src: ~/nagios/nagios-4.6.7.tar.gz
+        src: https://github.com/NagiosEnterprises/nagioscore/archive/nagios-4.4.6.tar.gz
         dest: ~/nagios
         remote_src: yes
-        extra_opts: --strip-components=1
+        mode: 0777
+        owner: root
+        group: root
+
+   - name: Download Nagios plugins
+     unarchive:
+      src: https://github.com/nagios-plugins/nagios-plugins/archive/release-2.3.3.tar.gz
+      dest: ~/nagios 
+      remote_src: yes
+      mode: 0777
+      owner: root
+      group: root
 
     - name: Configure Nagios
       command: >
         ./configure --with-command-group=nagcmd
       args:
-        chdir: ~/nagios/nagioscore
+        chdir: ~/nagios
 
     - name: Compile and Install Nagios
       shell: |
