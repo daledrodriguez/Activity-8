@@ -35,12 +35,14 @@
         url: https://prdownloads.sourceforge.net/sourceforge/nagios/nagios-4.6.7.tar.gz
         dest: ~/nagios/nagios-core.tar.gz
         mode: 0644
+      validate_certs: no
 
     - name: Download Nagios Plugins
       get_url:
         url: http://www.nagios-plugins.org/download/nagios-plugins-2.0.3.tar.gz
         dest: ~/nagios/nagios-plugins.tar.gz
         mode: 0644
+      validate_certs: no 
 
     - name: Extract Nagios Core
       shell: tar zxvf ~/nagios/nagios-core.tar.gz -C ~/nagios
