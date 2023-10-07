@@ -24,6 +24,16 @@
           - python-pip
       when: ansible_distribution_major_version == '7'
 
+    - name: Install Development Tools and Libraries
+      package:
+        name:
+          - automake
+          - autoconf
+          - gcc-c++
+          - openssl-devel
+          - libtool
+      when: ansible_distribution_major_version == '7'
+
     - name: Add nagios user
       user:
         name: nagios
