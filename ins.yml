@@ -101,9 +101,13 @@
         chdir: ~/nagios
 
     - name: Set up Nagios admin password
-      command: >
-        htpasswd -s -c /usr/local/nagios/etc/htpasswd.users nagiosadmin
+      expect:
+        command: htpasswd -s -c /usr/local/nagios/etc/htpasswd.users nagiosadmin
+        responses:
+          'New password:': admin
+          'Re-type new password:': admin
       ignore_errors: yes
+
 
     - name: Start Apache
       service:
