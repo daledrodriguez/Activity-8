@@ -104,9 +104,11 @@
       expect:
         command: htpasswd -s -c /usr/local/nagios/etc/htpasswd.users nagiosadmin
         responses:
-          'New password:': admin
-          'Re-type new password:': admin
+          'New password:': 'admin'
+          'Re-type new password:': 'admin'
       ignore_errors: yes
+      vars:
+        ansible_python_interpreter: /usr/lib/python3/dist-packages
 
 
     - name: Start Apache
