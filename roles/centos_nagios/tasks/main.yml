@@ -1,24 +1,24 @@
 ---
-- name: nagios libraries
-  tags: libraries, dependencies
-  package:
-    name:
-      - gcc
-      - glibc
-      - glibc-common
-      - perl
-      - httpd
-      - php
-      - wget
-      - gd
-      - gd-devel
-      - openssl-devel
-      - make
-      - gettext
-      - automake
-      - net-snmp
-      - net-snmp-utils
-      - python-pip
+ - name: nagios libraries
+   tags: libraries, dependencies
+   package:
+     name:
+       - gcc
+       - glibc
+       - glibc-common
+       - perl
+       - httpd
+       - php
+       - wget
+       - gd
+       - gd-devel
+       - openssl-devel
+       - make
+       - gettext
+       - automake
+       - net-snmp
+       - net-snmp-utils
+       - python-pip
    
   - name: Install passlib using pip
     pip:
