@@ -3,6 +3,37 @@
   hosts: centos_nagios
   become: yes  # You might need to become a superuser for some tasks
   tasks:
+    - name: Install Nagios Libraries
+      package:
+        name:
+          - gcc
+          - glibc
+          - glibc-common
+          - perl
+          - httpd
+          - php
+          - wget
+          - gd
+          - gd-devel
+          - openssl-devel
+          - make
+          - gettext
+          - automake
+          - net-snmp
+          - net-snmp-utils
+          - python-pip
+      when: ansible_distribution_major_version == '7'
+
+    - name: Install Development Tools and Libraries
+      package:
+        name:
+          - automake
+          - autoconf
+          - gcc-c++
+          - openssl-devel
+          - libtool
+      when: ansible_distribution_major_version == '7'
+
     - name: Add nagios user
       user:
         name: nagios
@@ -30,35 +61,24 @@
         path: ~/nagios
         state: directory
 
-    - name: Download Nagios Core
+    - name: Download Nagios
       get_url:
         url: https://prdownloads.sourceforge.net/sourceforge/nagios/nagios-4.6.7.tar.gz
-        dest: ~/nagios/nagios-core.tar.gz
+        dest: ~/nagios/nagios-4.6.7.tar.gz
         mode: 0644
-      validate_certs: no
 
-    - name: Download Nagios Plugins
-      get_url:
-        url: http://www.nagios-plugins.org/download/nagios-plugins-2.0.3.tar.gz
-        dest: ~/nagios/nagios-plugins.tar.gz
-        mode: 0644
-      validate_certs: no 
-
-    - name: Extract Nagios Core
-      shell: tar zxvf ~/nagios/nagios-core.tar.gz -C ~/nagios
-      args:
-        creates: ~/nagios/nagios-4.0.7
-
-    - name: Extract Nagios Plugins
-      shell: tar zxvf ~/nagios/nagios-plugins.tar.gz -C ~/nagios
-      args:
-        creates: ~/nagios/nagios-plugins-2.0.3
+    - name: Extract Nagios
+      unarchive:
+        src: ~/nagios/nagios-4.6.7.tar.gz
+        dest: ~/nagios
+        remote_src: yes
+        extra_opts: --strip-components=1
 
     - name: Configure Nagios
       command: >
         ./configure --with-command-group=nagcmd
       args:
-        chdir: ~/nagios/nagios-4.0.7
+        chdir: ~/nagios/nagioscore
 
     - name: Compile and Install Nagios
       shell: |
@@ -68,12 +88,12 @@
         make install-commandmode
         make install-config
       args:
-        chdir: ~/nagios/nagios-4.0.7
+        chdir: ~/nagios/nagioscore
 
     - name: Install Nagios Web Configuration
       shell: make install-webconf
       args:
-        chdir: ~/nagios/nagios-4.0.7
+        chdir: ~/nagios/nagioscore
 
     - name: Set up Nagios admin password
       command: >
@@ -86,32 +106,36 @@
         state: started
         enabled: yes
 
-    - name: Configure Nagios Plugins
-      command: >
-        cd ~/nagios/nagios-plugins-2.0.3
-        ./configure --with-nagios-user=nagios --with-nagios-group=nagios
-      args:
-        chdir: ~/nagios/nagios-plugins-2.0.3
+    - name: Download Nagios Plugins
+      get_url:
+        url: http://www.nagios-plugins.org/download/nagios-plugins-2.0.3.tar.gz
+        dest: ~/nagios/nagios-plugins.tar.gz
+        mode: 0644
 
-    - name: Compile and Install Nagios Plugins
-      shell: |
-        cd ~/nagios/nagios-plugins-2.0.3
+    - name: Extract Nagios Plugins
+      unarchive:
+        src: ~/nagios/nagios-plugins.tar.gz
+        dest: ~/nagios
+        remote_src: yes
+        extra_opts: --strip-components=1
+
+    - name: Configure and Install Nagios Plugins
+      command: >
+        ./configure --with-nagios-user=nagios --with-nagios-group=nagios
         make
         make install
       args:
-        chdir: ~/nagios/nagios-plugins-2.0.3
+        chdir: ~/nagios/nagios-plugins
 
     - name: Verify Nagios Configuration
       command: >
         /usr/local/nagios/bin/nagios -v /usr/local/nagios/etc/nagios.cfg
       changed_when: false
 
-    - name: Add Nagios service to run at boot
-      command: chkconfig --add nagios
-      when: ansible_distribution_major_version == '7'
-
-    - name: Set Nagios to run at boot
-      command: chkconfig --level 35 nagios on
+    - name: Add Nagios service to startup
+      systemd:
+        name: nagios.service
+        enabled: yes
       when: ansible_distribution_major_version == '7'
 
     - name: Start Nagios service
