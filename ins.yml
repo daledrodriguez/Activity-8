@@ -39,7 +39,7 @@
     - name: Download Nagios Plugins source
       get_url:
         url: http://www.nagios-plugins.org/download/nagios-plugins-2.0.3.tar.gz
-        dest: ~/nagios/nagios-plugins-2.0.3.tar.gz
+        dest: ~/nagios
 
     - name: Extract Nagios source
       command: tar zxvf ~/nagios/nagios-4.0.7.tar.gz
