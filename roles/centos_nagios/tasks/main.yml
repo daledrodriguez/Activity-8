@@ -1,7 +1,7 @@
 ---
 - name: Nagios Installation and Configuration
   hosts: centos_nagios
-  become: yes
+  become: true
   tasks:
     - name: Install Nagios Libraries
       package:
