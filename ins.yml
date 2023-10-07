@@ -33,7 +33,7 @@
 
     - name: Download Nagios source
       get_url:
-        url: https://sourceforge.net/projects/nagios/files/nagios-4.x/nagios-4.0.7/nagios-4.0.7.tar.gz/download?use_mirror=master
+        url: https://sourceforge.net/projects/nagios/files/nagios-4.x/nagios-4.0.7/nagios-4.0.7.tar.gz
         dest: ~/nagios/nagios-4.0.7.tar.gz
 
     - name: Download Nagios Plugins source
