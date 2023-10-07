@@ -36,11 +36,6 @@
         dest: ~/nagios/nagios-plugins.tar.gz
         mode: 0644
 
-    - name: Extract Nagios Core
-      shell: tar zxvf ~/nagios/nagios-core.tar.gz -C ~/nagios
-      args:
-        creates: ~/nagios/nagios-4.0.7
-
     - name: Extract Nagios Plugins
       shell: tar zxvf ~/nagios/nagios-plugins.tar.gz -C ~/nagios
       args:
