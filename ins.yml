@@ -93,12 +93,12 @@
         make install-commandmode
         make install-config
       args:
-        chdir: ~/nagios/nagioscore
+        chdir: ~/nagios
 
     - name: Install Nagios Web Configuration
       shell: make install-webconf
       args:
-        chdir: ~/nagios/nagioscore
+        chdir: ~/nagios
 
     - name: Set up Nagios admin password
       command: >
@@ -111,26 +111,13 @@
         state: started
         enabled: yes
 
-    - name: Download Nagios Plugins
-      get_url:
-        url: http://www.nagios-plugins.org/download/nagios-plugins-2.0.3.tar.gz
-        dest: ~/nagios/nagios-plugins.tar.gz
-        mode: 0644
-
-    - name: Extract Nagios Plugins
-      unarchive:
-        src: ~/nagios/nagios-plugins.tar.gz
-        dest: ~/nagios
-        remote_src: yes
-        extra_opts: --strip-components=1
-
     - name: Configure and Install Nagios Plugins
       command: >
         ./configure --with-nagios-user=nagios --with-nagios-group=nagios
         make
         make install
       args:
-        chdir: ~/nagios/nagios-plugins
+        chdir: ~/nagios/release-2.3.3.tar.gz
 
     - name: Verify Nagios Configuration
       command: >
