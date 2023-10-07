@@ -6,22 +6,20 @@
   become: true
   pre_tasks:
 
-    - name: dnf and epel installation
-      yum:
-        name: 
-          - epel-release
-          - dnf
+    - name: dnf and epel installation (CentOS)
+      c: epel-release
       when: ansible_distribution == "CentOS"
 
-    - name: dpkg in ubuntu
-      shell: |
-        dpkg --configure -a
+    - name: dpkg installation (Ubuntu)
+      apt:
+        name: dpkg
+        state: present
       when: ansible_distribution == "Ubuntu"
 
     - name: install updates (CentOS)
       dnf:
+        name: "*"
         update_cache: yes
-        update_only: yes
       when: ansible_distribution == "CentOS"
 
     - name: install updates (Ubuntu)

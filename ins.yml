@@ -1,0 +1,10 @@
+---
+
+ - hosts: centos_nagios
+   become: true
+   tasks:
+
+    - name: start nagios
+      systemd:
+        name: nagios.service
+        state: started
