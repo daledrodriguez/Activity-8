@@ -11,7 +11,7 @@
       - unzip
       - apache2
       - php
-      - apache2-mod-php7.4
+      - libapache2-mod-php7.4
       - libgd-dev
       - openssl
       - libssl-dev
