@@ -100,17 +100,12 @@
       args:
         chdir: ~/nagios
 
-    - name: Set up Nagios admin password
-      expect:
-        command: htpasswd -s -c /usr/local/nagios/etc/htpasswd.users nagiosadmin
-        responses:
-          'New password:': 'admin'
-          'Re-type new password:': 'admin'
-      ignore_errors: yes
-      vars:
-        ansible_python_interpreter: /usr/lib/python3/dist-packages
-
-
+    - name: Adding Users to Nagios
+      community.general.htpasswd:
+        path: /usr/local/nagios/etc/htpasswd.users
+        name: admin
+        password: admin
+      
     - name: Start Apache
       service:
         name: httpd
@@ -123,7 +118,7 @@
         make
         make install
       args:
-        chdir: ~/nagios/release-2.3.3.tar.gz
+        chdir: ~/nagios
 
     - name: Verify Nagios Configuration
       command: >
