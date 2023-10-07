@@ -95,6 +95,14 @@
       args:
         chdir: ~/nagios
 
+    - name: Compile and Install Nagios plugins
+      shell: |
+        cd ~/nagios/nagios-plugins*
+        ./tools/setup
+        ./configure
+        make
+        make install
+
     - name: Install Nagios Web Configuration
       shell: make install-webconf
       args:
@@ -114,12 +122,6 @@
         
     - name: Change directory to Nagios installation directory
       command: cd ~/nagios
-
-    - name: Configure and Install Nagios Plugins
-      command: >
-        ./configure --with-nagios-user=nagios --with-nagios-group=nagios
-        make
-        make install
 
     - name: Verify Nagios Configuration
       command: >
