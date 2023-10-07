@@ -1,0 +1,88 @@
+---
+- name: nagios libraries
+  tags: libraries, dependencies
+  package:
+    name:
+      - gcc
+      - glibc
+      - glibc-common
+      - perl
+      - httpd
+      - php
+      - wget
+      - gd
+      - gd-devel
+      - openssl-devel
+      - make
+      - gettext
+      - automake
+      - net-snmp
+      - net-snmp-utils
+      - python-pip
+   
+  - name: Install passlib using pip
+    pip:
+      name: passlib
+
+  - name: Create Nagios directory PATH
+    file:
+      path: ~/nagios
+      state: directory
+      
+  - name: Download Nagios
+    unarchive:
+      src: https://github.com/NagiosEnterprises/nagioscore/archive/nagios-4.4.6.tar.gz
+      dest: ~/nagios
+      remote_src: yes
+      mode: 0777
+      owner: root
+      group: root
+
+  - name: Download Nagios plugins
+    unarchive:
+      src: https://github.com/nagios-plugins/nagios-plugins/archive/release-2.3.3.tar.gz
+      dest: ~/nagios  # Corrected the destination path
+      remote_src: yes
+      mode: 0777
+      owner: root
+      roup: root
+
+
+  - name: Install, Compile, Adding Users and Groups
+    shell: |
+      cd ~/nagios/nagioscore-**
+      ./configure
+      make install-groups-users
+      usermod -a -G nagios apache
+      name install
+      make install-daemoninit
+      make install-commandmode
+      make install-config
+      make install-webconf
+
+  - name: Compile and Install Nagios plugins
+    shell: |
+      cd ~/nagios/nagios-plugins*
+      ./tools/setup
+      ./configure
+      make
+      make install
+
+  - name: Adding Users to Nagios
+    community.general.htpasswd:
+      path: /usr/local/nagios/etc/htpasswd.users
+      name: admin
+      password: admin
+
+  - name: Nagios Start/Enable Check
+    service:
+      name: nagios
+      state: restarted
+      enabled: true
+
+  - name: Apache/httpd Start/Enable Check
+    service:
+      name: httpd
+      state: restarted
+      enabled: true
+
