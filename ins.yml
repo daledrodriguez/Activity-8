@@ -1,15 +1,17 @@
 ---
-- name: Install Nagios on CentOS
-  hosts: centos_nagios
-  become: yes
+- name: Nagios Installation and Configuration
+  hosts: localhost
+  become: yes  # You might need to become a superuser for some tasks
   tasks:
-    - name: Create Nagios user
+    - name: Add nagios user
       user:
         name: nagios
+        state: present
 
-    - name: Create nagcmd group
+    - name: Add nagcmd group
       group:
         name: nagcmd
+        state: present
 
     - name: Add nagios to nagcmd group
       user:
@@ -23,100 +25,95 @@
         groups: nagcmd
         append: yes
 
-    - name: Create directory for Nagios installation
+    - name: Create Nagios directory PATH
       file:
         path: ~/nagios
         state: directory
 
-    - name: Change directory to Nagios installation directory
-      command: cd ~/nagios
-
-    - name: Download Nagios source
+    - name: Download Nagios Core
       get_url:
-        url: https://prdownloads.sourceforge.net/projects/nagios/files/nagios-4.x/nagios-4.0.7/nagios-4.0.7.tar.gz
-        dest: ~/nagios/nagios-4.0.7.tar.gz
+        url: https://sourceforge.net/projects/nagios/files/nagios-4.x/nagios-4.0.7/nagios-4.0.7.tar.gz/download?use_mirror=master
+        dest: ~/nagios/nagios-core.tar.gz
         mode: 0644
 
-    - name: Download Nagios Plugins source
+    - name: Download Nagios Plugins
       get_url:
         url: http://www.nagios-plugins.org/download/nagios-plugins-2.0.3.tar.gz
-        dest: ~/nagios
+        dest: ~/nagios/nagios-plugins.tar.gz
+        mode: 0644
 
-    - name: Extract Nagios source
-      command: tar zxvf ~/nagios/nagios-4.0.7.tar.gz
+    - name: Extract Nagios Core
+      shell: tar zxvf ~/nagios/nagios-core.tar.gz -C ~/nagios
       args:
-        chdir: ~/nagios
+        creates: ~/nagios/nagios-4.0.7
 
-    - name: Extract Nagios Plugins source
-      command: tar zxvf ~/nagios/nagios-plugins-2.0.3.tar.gz
+    - name: Extract Nagios Plugins
+      shell: tar zxvf ~/nagios/nagios-plugins.tar.gz -C ~/nagios
       args:
-        chdir: ~/nagios
+        creates: ~/nagios/nagios-plugins-2.0.3
 
     - name: Configure Nagios
-      command: ./configure --with-command-group=nagcmd
+      command: >
+        ./configure --with-command-group=nagcmd
       args:
         chdir: ~/nagios/nagios-4.0.7
 
-    - name: Compile Nagios
-      command: make all
+    - name: Compile and Install Nagios
+      shell: |
+        make all
+        make install
+        make install-init
+        make install-commandmode
+        make install-config
       args:
         chdir: ~/nagios/nagios-4.0.7
 
-    - name: Install Nagios
-      command: make install
+    - name: Install Nagios Web Configuration
+      shell: make install-webconf
       args:
         chdir: ~/nagios/nagios-4.0.7
 
-    - name: Install Nagios init scripts
-      command: make install-init
-      args:
-        chdir: ~/nagios/nagios-4.0.7
+    - name: Set up Nagios admin password
+      command: >
+        htpasswd -s -c /usr/local/nagios/etc/htpasswd.users nagiosadmin
+      ignore_errors: yes
 
-    - name: Install Nagios command mode
-      command: make install-commandmode
-      args:
-        chdir: ~/nagios/nagios-4.0.7
-
-    - name: Install Nagios config files
-      command: make install-config
-      args:
-        chdir: ~/nagios/nagios-4.0.7
-
-    - name: Install Nagios web component
-      command: make install-webconf
-      args:
-        chdir: ~/nagios/nagios-4.0.7
-
-    - name: Set up nagiosadmin password
-      command: htpasswd -s -c /usr/local/nagios/etc/htpasswd.users nagiosadmin
-
-    - name: Restart Apache
+    - name: Start Apache
       service:
         name: httpd
-        state: restarted
-
-    - name: Change directory to Nagios Plugins installation directory
-      command: cd ~/nagios/nagios-plugins-2.0.3
+        state: started
+        enabled: yes
 
     - name: Configure Nagios Plugins
-      command: ./configure --with-nagios-user=nagios --with-nagios-group=nagios
+      command: >
+        cd ~/nagios/nagios-plugins-2.0.3
+        ./configure --with-nagios-user=nagios --with-nagios-group=nagios
+      args:
+        chdir: ~/nagios/nagios-plugins-2.0.3
 
-    - name: Compile Nagios Plugins
-      command: make
+    - name: Compile and Install Nagios Plugins
+      shell: |
+        cd ~/nagios/nagios-plugins-2.0.3
+        make
+        make install
+      args:
+        chdir: ~/nagios/nagios-plugins-2.0.3
 
-    - name: Install Nagios Plugins
-      command: make install
+    - name: Verify Nagios Configuration
+      command: >
+        /usr/local/nagios/bin/nagios -v /usr/local/nagios/etc/nagios.cfg
+      changed_when: false
 
-    - name: Verify Nagios configuration
-      command: /usr/local/nagios/bin/nagios -v /usr/local/nagios/etc/nagios.cfg
-
-    - name: Add Nagios to startup
+    - name: Add Nagios service to run at boot
       command: chkconfig --add nagios
+      when: ansible_distribution_major_version == '7'
 
-    - name: Set Nagios to start on boot
+    - name: Set Nagios to run at boot
       command: chkconfig --level 35 nagios on
+      when: ansible_distribution_major_version == '7'
 
     - name: Start Nagios service
       service:
         name: nagios
         state: started
+      when: ansible_distribution_major_version == '7'
