@@ -76,9 +76,10 @@
         group: root
 
     - name: Configure Nagios
-      shell: |
-        cd ~/nagios
+      command: >
         ./configure --with-command-group=nagcmd
+      args:
+        chdir: ~/nagios
 
     - name: Compile and Install Nagios
       shell: |
