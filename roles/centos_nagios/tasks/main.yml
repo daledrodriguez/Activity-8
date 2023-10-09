@@ -54,13 +54,13 @@
 
     - name: Create Nagios directory PATH
       file:
-        path: ~/nagios
+        path: ~/nagios/
         state: directory
 
     - name: Download Nagios
       unarchive:
         src: https://github.com/NagiosEnterprises/nagioscore/archive/nagios-4.4.6.tar.gz
-        dest: ~/nagios
+        dest: ~/nagios/
         remote_src: yes
         mode: 0777
         owner: root
@@ -69,7 +69,7 @@
     - name: Download Nagios plugins
       unarchive:
         src: https://github.com/nagios-plugins/nagios-plugins/archive/release-2.3.3.tar.gz
-        dest: ~/nagios 
+        dest: ~/nagios/
         remote_src: yes
         mode: 0777
         owner: root
