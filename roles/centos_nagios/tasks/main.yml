@@ -79,7 +79,7 @@
       command: >
         ./configure --with-command-group=nagcmd
       args:
-        chdir: ~/nagios
+        chdir: ~/nagios/
 
     - name: Compile and Install Nagios
       shell: |
